@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morse Master - CW Encoder</title>
+    <style>
+        :root {
+            --primary: #00ff41;
+            --bg: #1a1a1a;
+            --panel: #2d2d2d;
+        }
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg);
+            color: var(--primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: var(--panel);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 600px;
+        }
+        h1 { text-align: center; border-bottom: 2px solid var(--primary); }
+        textarea {
+            width: 100%;
+            height: 100px;
+            background: #000;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            flex: 1;
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        button:hover { opacity: 0.8; }
+        #morseOutput {
+            font-size: 1.5rem;
+            word-break: break-all;
+            min-height: 50px;
+            margin-top: 10px;
+            color: #fff;
+        }
+        .light {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #333;
+            margin: 20px auto;
+            transition: 0.05s;
+        }
+        .light.active {
+            background: var(--primary);
+            box-shadow: 0 0 30px var(--primary);
+        }
+        .config { font-size: 0.8rem; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>CW MORSE ENCODER</h1>
+        
+        <div class="light" id="led"></div>
+
+        <textarea id="textInput" placeholder="Escribe tu mensaje aquí..."></textarea>
+        
+        <div class="controls">
+            <button onclick="playMorse()">Reproducir Morse</button>
+            <button onclick="stopMorse()" style="background:#ff4141">Parar</button>
+        </div>
+
+        <div id="morseOutput"></div>
+
+        <div class="config">
+            Velocidad (WPM): <input type="range" id="wpm" min="5" max="40" value="20">
+            <span id="wpmValue">20</span>
+        </div>
+    </div>
+
+    <script>
+        const morseCode = {
+            'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+            'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+            'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+            'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+            'Y': '-.--', 'Z': '--..', '1': '.----', '2': '..---', '3': '...--',
+            '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..',
+            '9': '----.', '0': '-----', ' ': '/'
+        };
+
+        let audioCtx = null;
+        let isPlaying = false;
+
+        // Actualizar valor de WPM visualmente
+        document.getElementById('wpm').addEventListener('input', (e) => {
+            document.getElementById('wpmValue').innerText = e.target.value;
+        });
+
+        function textToMorse(text) {
+            return text.toUpperCase().split('').map(char => morseCode[char] || '').join(' ');
+        }
+
+        async function playMorse() {
+            if (isPlaying) return;
+            isPlaying = true;
+
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            const text = document.getElementById('textInput').value;
+            const morse = textToMorse(text);
+            document.getElementById('morseOutput').innerText = morse;
+
+            const wpm = document.getElementById('wpm').value;
+            const unit = 1200 / wpm; // Duración del punto en ms
+
+            for (let symbol of morse) {
+                if (!isPlaying) break;
+
+                if (symbol === '.') {
+                    await beep(unit);
+                    await sleep(unit);
+                } else if (symbol === '-') {
+                    await beep(unit * 3);
+                    await sleep(unit);
+                } else if (symbol === ' ') {
+                    await sleep(unit * 3);
+                } else if (symbol === '/') {
+                    await sleep(unit * 7);
+                }
+            }
+            isPlaying = false;
+        }
+
+        function stopMorse() {
+            isPlaying = false;
+        }
+
+        function beep(duration) {
+            return new Promise(resolve => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const led = document.getElementById('led');
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.frequency.value = 700;
+                osc.type = 'sine';
+
+                led.classList.add('active');
+                osc.start();
+
+                setTimeout(() => {
+                    osc.stop();
+                    led.classList.remove('active');
+                    resolve();
+                }, duration);
+            });
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>
