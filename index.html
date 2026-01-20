@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poster Designer Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;700;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <style>
         body {
             background-color: #0f172a;
             color: white;
             font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         /* Área de Trabajo */
@@ -36,8 +37,11 @@
         .draggable {
             position: absolute;
             cursor: move;
-            transition: outline 0.2s;
+            transition: outline 0.1s;
             padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .draggable:hover {
             outline: 2px dashed #3b82f6;
@@ -45,6 +49,12 @@
         .draggable.active {
             outline: 2px solid #3b82f6;
             z-index: 100;
+        }
+
+        .logo-element img {
+            width: 100%;
+            height: auto;
+            pointer-events: none;
         }
 
         #bgImage {
@@ -67,9 +77,10 @@
             background: #1e293b;
             border-left: 1px solid #334155;
             padding: 1.5rem;
+            overflow-y: auto;
         }
 
-        /* Estilos de Texto Predefinidos */
+        /* Estilos de Texto */
         .style-elegant { font-family: 'Playfair Display', serif; text-transform: none; }
         .style-funny { font-family: 'Bangers', cursive; text-transform: uppercase; letter-spacing: 1px; }
         .style-bold { font-family: 'Inter', sans-serif; font-weight: 900; text-transform: uppercase; }
@@ -89,9 +100,17 @@
             padding: 0.75rem;
             border-radius: 0.5rem;
             font-weight: bold;
-            transition: transform 0.2s;
+            transition: all 0.2s;
         }
-        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+
+        .btn-secondary {
+            background: #334155;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
 
         #loadingOverlay {
             position: fixed;
@@ -109,101 +128,116 @@
     <div id="loadingOverlay">
         <div class="text-center">
             <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p class="font-bold">IA DISEÑANDO...</p>
+            <p class="font-bold">PROCESANDO DISEÑO...</p>
         </div>
     </div>
 
     <div class="workspace">
         
-        <!-- PANEL IZQUIERDO: CONTENIDO Y FOTO -->
+        <!-- PANEL IZQUIERDO -->
         <aside class="tool-panel space-y-6">
             <div>
-                <h2 class="text-xl font-black mb-1">POSTER PRO</h2>
-                <p class="text-xs text-slate-400 uppercase tracking-widest mb-6">Editor de Anuncios IA</p>
+                <h2 class="text-xl font-black mb-1 italic">POSTER DESIGNER PRO</h2>
+                <p class="text-[10px] text-slate-400 uppercase tracking-[0.2em] mb-6">Estudio de Creación Visual</p>
             </div>
 
             <div class="space-y-4">
                 <label class="block text-xs font-bold text-slate-500 uppercase">1. Configuración IA</label>
-                <input type="password" id="apiKey" placeholder="Pegar API Key de Gemini">
+                <input type="password" id="apiKey" placeholder="API Key de Gemini">
             </div>
 
             <div class="space-y-4">
-                <label class="block text-xs font-bold text-slate-500 uppercase">2. Imagen del Sujeto</label>
+                <label class="block text-xs font-bold text-slate-500 uppercase">2. Fondo del Póster</label>
                 <div class="border-2 border-dashed border-slate-700 rounded-xl p-4 text-center hover:border-blue-500 transition-colors relative">
-                    <input type="file" id="imageInput" class="absolute inset-0 opacity-0 cursor-pointer">
-                    <p class="text-xs text-slate-400">Click para cargar foto</p>
+                    <input type="file" id="imageInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
+                    <p class="text-xs text-slate-400">Cambiar Foto de Fondo</p>
                 </div>
             </div>
 
             <div class="space-y-4">
-                <label class="block text-xs font-bold text-slate-500 uppercase">3. ¿Qué anuncias?</label>
-                <textarea id="promptInput" rows="3" placeholder="Ej: Una fiesta de verano elegante o un torneo de ajedrez divertido"></textarea>
-            </div>
-
-            <div class="space-y-4">
-                <label class="block text-xs font-bold text-slate-500 uppercase">4. Tono del Póster</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="setGlobalStyle('elegant')" class="p-2 bg-slate-800 rounded text-xs border border-white/5 hover:border-blue-500">Elegante</button>
-                    <button onclick="setGlobalStyle('funny')" class="p-2 bg-slate-800 rounded text-xs border border-white/5 hover:border-blue-500">Divertido</button>
+                <label class="block text-xs font-bold text-slate-500 uppercase">3. Logos y Elementos</label>
+                <div class="grid grid-cols-1 gap-2">
+                    <div class="relative">
+                        <input type="file" id="logoInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
+                        <button class="btn-secondary w-full flex items-center justify-center gap-2">
+                            <span>+ Subir Logo</span>
+                        </button>
+                    </div>
+                    <button id="addCommentBtn" class="btn-secondary flex items-center justify-center gap-2">
+                        <span>+ Agregar Comentario</span>
+                    </button>
                 </div>
             </div>
 
-            <button id="magicBtn" class="btn-primary w-full mt-4">GENERAR DISEÑO BASE</button>
+            <div class="space-y-4">
+                <label class="block text-xs font-bold text-slate-500 uppercase">4. ¿Qué anuncias?</label>
+                <textarea id="promptInput" rows="3" placeholder="Describe tu actividad para que la IA cree el contenido..."></textarea>
+            </div>
+
+            <button id="magicBtn" class="btn-primary w-full mt-4">GENERAR CONTENIDO IA</button>
         </aside>
 
-        <!-- AREA CENTRAL: EL LIENZO -->
+        <!-- ÁREA CENTRAL -->
         <main class="flex flex-col items-center justify-center bg-slate-900 p-8 overflow-hidden">
-            <div class="mb-4 flex gap-4 text-xs">
-                <span class="text-slate-500">Tip: Arrastra los elementos para moverlos</span>
-            </div>
-
             <div id="posterCanvas">
                 <img id="bgImage" src="https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=80&w=1000" alt="background">
                 
                 <div id="elTitle" class="draggable active style-elegant text-4xl font-bold" style="top: 50px; left: 50px; width: 350px;">
-                    TU TÍTULO AQUÍ
+                    TÍTULO PRINCIPAL
                 </div>
 
-                <div id="elDesc" class="draggable style-elegant text-sm" style="top: 450px; left: 50px; width: 350px; line-height: 1.4;">
-                    Una descripción fascinante creada por la IA para tu evento especial. Todo es editable.
+                <div id="elDesc" class="draggable style-elegant text-sm text-center" style="top: 450px; left: 50px; width: 350px;">
+                    Descripción del anuncio editable y movible.
                 </div>
 
-                <div id="elDetails" class="draggable font-bold text-xs bg-black text-white px-3 py-1 uppercase tracking-tighter" style="top: 580px; left: 50px;">
-                    FECHA | LUGAR | HORA
+                <div id="elDetails" class="draggable font-bold text-xs bg-black text-white px-3 py-1 uppercase" style="top: 580px; left: 50px;">
+                    DETALLES DEL EVENTO
                 </div>
             </div>
         </main>
 
-        <!-- PANEL DERECHO: EDICIÓN DE ELEMENTO SELECCIONADO -->
+        <!-- PANEL DERECHO -->
         <aside class="edit-panel space-y-6">
-            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest">Editor de Elemento</h3>
+            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest">Ajustes de Capa</h3>
             
             <div id="editorControls" class="space-y-4">
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Texto Contenido</label>
-                    <textarea id="textEdit" rows="3"></textarea>
-                </div>
-
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Color de Texto</label>
-                    <div class="flex gap-2">
+                <!-- Editor de Texto -->
+                <div id="textControls" class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Contenido del Texto</label>
+                        <textarea id="textEdit" rows="3"></textarea>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Tamaño</label>
+                        <input type="range" id="sizeEdit" min="10" max="150" value="40">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Color</label>
                         <input type="color" id="colorEdit" class="h-10">
                     </div>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Tamaño</label>
-                    <input type="range" id="sizeEdit" min="10" max="120" value="40">
+                <!-- Editor de Logo (Se muestra cuando se selecciona un logo) -->
+                <div id="logoControls" class="space-y-4 hidden">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Ancho del Logo</label>
+                        <input type="range" id="logoSizeEdit" min="20" max="400" value="100">
+                    </div>
                 </div>
 
                 <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Opacidad Fondo</label>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Fondo de Capa (Opacidad)</label>
                     <input type="range" id="bgOpacityEdit" min="0" max="100" value="0">
+                </div>
+
+                <div class="pt-4">
+                    <button id="deleteElementBtn" class="w-full p-2 bg-red-900/50 hover:bg-red-600 rounded text-[10px] font-bold uppercase transition-colors">Eliminar Capa Seleccionada</button>
                 </div>
             </div>
 
-            <div class="pt-6 border-t border-slate-700">
-                <button onclick="window.print()" class="w-full p-2 bg-green-600 rounded text-xs font-bold uppercase">Descargar / Imprimir</button>
+            <div class="pt-6 border-t border-slate-700 space-y-3">
+                <button id="downloadJpg" class="w-full p-3 bg-blue-600 hover:bg-blue-500 rounded text-xs font-bold uppercase">Exportar como JPG</button>
+                <button onclick="window.print()" class="w-full p-3 bg-slate-700 hover:bg-slate-600 rounded text-xs font-bold uppercase">Imprimir PDF</button>
             </div>
         </aside>
 
@@ -213,16 +247,19 @@
         let activeElement = document.getElementById('elTitle');
         let isDragging = false;
         let startX, startY, initialLeft, initialTop;
-        let globalTheme = 'elegant';
 
         const apiKeyInput = document.getElementById('apiKey');
         const imageInput = document.getElementById('imageInput');
+        const logoInput = document.getElementById('logoInput');
+        const addCommentBtn = document.getElementById('addCommentBtn');
         const bgImage = document.getElementById('bgImage');
         const magicBtn = document.getElementById('magicBtn');
         const loading = document.getElementById('loadingOverlay');
+        const posterCanvas = document.getElementById('posterCanvas');
+        const downloadJpg = document.getElementById('downloadJpg');
 
-        // Drag and Drop Logic
-        document.querySelectorAll('.draggable').forEach(el => {
+        // Función para asignar eventos de arrastre a nuevos elementos
+        function makeDraggable(el) {
             el.addEventListener('mousedown', (e) => {
                 activeElement = el;
                 isDragging = true;
@@ -231,16 +268,37 @@
                 initialLeft = el.offsetLeft;
                 initialTop = el.offsetTop;
                 
-                // Update UI editor
-                document.getElementById('textEdit').value = el.innerText;
-                document.getElementById('sizeEdit').value = parseInt(window.getComputedStyle(el).fontSize);
+                updateEditorUI();
                 
-                // Highlight
                 document.querySelectorAll('.draggable').forEach(d => d.classList.remove('active'));
                 el.classList.add('active');
             });
-        });
+        }
 
+        function updateEditorUI() {
+            const isLogo = activeElement.classList.contains('logo-element');
+            document.getElementById('textControls').classList.toggle('hidden', isLogo);
+            document.getElementById('logoControls').classList.toggle('hidden', !isLogo);
+
+            if (!isLogo) {
+                document.getElementById('textEdit').value = activeElement.innerText;
+                document.getElementById('sizeEdit').value = parseInt(window.getComputedStyle(activeElement).fontSize);
+                document.getElementById('colorEdit').value = rgbToHex(window.getComputedStyle(activeElement).color);
+            } else {
+                document.getElementById('logoSizeEdit').value = activeElement.offsetWidth;
+            }
+            
+            const bg = window.getComputedStyle(activeElement).backgroundColor;
+            const alpha = bg.match(/rgba?\(.+,\s*([\d.]+)\)/);
+            document.getElementById('bgOpacityEdit').value = alpha ? parseFloat(alpha[1]) * 100 : 0;
+        }
+
+        function rgbToHex(rgb) {
+            const result = rgb.match(/\d+/g);
+            return result ? "#" + result.slice(0, 3).map(x => parseInt(x).toString(16).padStart(2, '0')).join('') : "#000000";
+        }
+
+        // Mouse Events Globales
         document.addEventListener('mousemove', (e) => {
             if (!isDragging || !activeElement) return;
             const dx = e.clientX - startX;
@@ -249,17 +307,69 @@
             activeElement.style.top = `${initialTop + dy}px`;
         });
 
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
+        document.addEventListener('mouseup', () => isDragging = false);
+
+        // Inicializar elementos existentes
+        document.querySelectorAll('.draggable').forEach(makeDraggable);
+
+        // Subir Logos
+        logoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const div = document.createElement('div');
+                    div.className = 'draggable logo-element';
+                    div.style.width = '100px';
+                    div.style.top = '100px';
+                    div.style.left = '100px';
+                    div.innerHTML = `<img src="${ev.target.result}" alt="logo">`;
+                    posterCanvas.appendChild(div);
+                    makeDraggable(div);
+                };
+                reader.readAsDataURL(file);
+            }
         });
 
-        // Editor Live Changes
+        // Agregar Comentarios
+        addCommentBtn.addEventListener('click', () => {
+            const div = document.createElement('div');
+            div.className = 'draggable style-bold text-sm';
+            div.style.top = '200px';
+            div.style.left = '100px';
+            div.style.width = '200px';
+            div.innerText = 'Nuevo comentario...';
+            posterCanvas.appendChild(div);
+            makeDraggable(div);
+        });
+
+        // Eliminar Elementos
+        document.getElementById('deleteElementBtn').addEventListener('click', () => {
+            if (activeElement && !['elTitle', 'elDesc', 'elDetails'].includes(activeElement.id)) {
+                activeElement.remove();
+                activeElement = null;
+            } else if (activeElement) {
+                alert("Este elemento principal no se puede borrar, solo editar.");
+            }
+        });
+
+        // Controles Live
         document.getElementById('textEdit').addEventListener('input', (e) => {
-            if (activeElement) activeElement.innerText = e.target.value;
+            if (activeElement && !activeElement.classList.contains('logo-element')) {
+                activeElement.innerText = e.target.value;
+            }
         });
 
         document.getElementById('sizeEdit').addEventListener('input', (e) => {
-            if (activeElement) activeElement.style.fontSize = `${e.target.value}px`;
+            if (activeElement && !activeElement.classList.contains('logo-element')) {
+                activeElement.style.fontSize = `${e.target.value}px`;
+            }
+        });
+
+        document.getElementById('logoSizeEdit').addEventListener('input', (e) => {
+            if (activeElement && activeElement.classList.contains('logo-element')) {
+                activeElement.style.width = `${e.target.value}px`;
+            }
         });
 
         document.getElementById('colorEdit').addEventListener('input', (e) => {
@@ -270,26 +380,22 @@
             if (activeElement) activeElement.style.backgroundColor = `rgba(0,0,0,${e.target.value/100})`;
         });
 
-        // Theme Switcher
-        window.setGlobalStyle = (style) => {
-            globalTheme = style;
-            const elements = [document.getElementById('elTitle'), document.getElementById('elDesc')];
-            elements.forEach(el => {
-                el.className = `draggable ${style === 'elegant' ? 'style-elegant' : 'style-funny'}`;
-                if (el === activeElement) el.classList.add('active');
+        // Exportar JPG
+        downloadJpg.addEventListener('click', () => {
+            loading.style.display = 'flex';
+            // Quitar el borde de selección antes de la captura
+            document.querySelectorAll('.draggable').forEach(d => d.classList.remove('active'));
+            
+            html2canvas(posterCanvas, {
+                useCORS: true,
+                scale: 2 // Alta calidad
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'mi-poster-pro.jpg';
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.click();
+                loading.style.display = 'none';
             });
-        };
-
-        // Image Upload
-        imageInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    bgImage.src = ev.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
         });
 
         // IA Integration
@@ -343,9 +449,9 @@
                     });
                 }
 
-                const aiPrompt = `Eres un director de arte. Crea contenido para un póster ${globalTheme} basado en: "${userPrompt}". 
-                Analiza la imagen si existe. El headline debe ser corto y potente. El body una invitación elegante. El footer detalles de contacto/fecha. 
-                Sugiere un color hexadecimal dominante para el texto que contraste bien.`;
+                const aiPrompt = `Eres un director creativo. Crea contenido publicitario profesional basado en: "${userPrompt}". 
+                Analiza la imagen si existe. El headline (título) debe ser impactante. El body una invitación cautivadora. El footer los detalles técnicos. 
+                Sugiere un color hexadecimal para el texto que sea legible y elegante sobre el fondo.`;
 
                 const result = await fetchGemini(aiPrompt, base64);
 
@@ -353,7 +459,7 @@
                 document.getElementById('elDesc').innerText = result.body;
                 document.getElementById('elDetails').innerText = result.footer;
                 
-                document.querySelectorAll('.draggable').forEach(el => {
+                document.querySelectorAll('.draggable:not(.logo-element)').forEach(el => {
                     el.style.color = result.color;
                 });
 
@@ -364,8 +470,18 @@
             }
         });
 
+        // Carga de Fondo
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => bgImage.src = ev.target.result;
+                reader.readAsDataURL(file);
+            }
+        });
+
         // Initialize
-        localStorage.getItem('gemini_free_key') && (apiKeyInput.value = localStorage.getItem('gemini_free_key'));
+        if(localStorage.getItem('gemini_free_key')) apiKeyInput.value = localStorage.getItem('gemini_free_key');
     </script>
 </body>
 </html>
