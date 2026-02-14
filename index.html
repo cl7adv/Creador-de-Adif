@@ -1,604 +1,285 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Motor Caribe 3D - Creador de Logos y Fondos</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogoGen AI - Círculo Perfecto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: radial-gradient(circle at top, #00c6ff, #001f3f);
-        margin: 0;
-        padding: 20px;
-        color: white;
-    }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-    .container {
-        max-width: 900px;
-        margin: auto;
-        background: rgba(0,0,0,0.35);
-        padding: 20px;
-        border-radius: 16px;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 0 25px rgba(0,0,0,0.6);
-    }
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #38bdf8;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
 
-    h1 {
-        text-align: center;
-        margin-bottom: 5px;
-    }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-    p.descripcion {
-        text-align: center;
-        font-size: 14px;
-        margin-top: 0;
-        margin-bottom: 20px;
-        opacity: 0.9;
-    }
+        .logo-preview-container {
+            aspect-ratio: 1 / 1;
+            background-color: #e5e7eb;
+            background-image: 
+                linear-gradient(45deg, #d1d5db 25%, transparent 25%), 
+                linear-gradient(-45deg, #d1d5db 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #d1d5db 75%), 
+                linear-gradient(-45deg, transparent 75%, #d1d5db 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 50%;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            max-width: 450px;
+            margin: 0 auto;
+        }
 
-    label {
-        font-weight: bold;
-        display: block;
-        margin-top: 10px;
-    }
+        input, select, textarea {
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+        }
 
-    input, select {
-        width: 100%;
-        padding: 8px;
-        border-radius: 6px;
-        border: none;
-        margin-top: 5px;
-    }
+        input:focus {
+            border-color: #38bdf8 !important;
+            outline: none;
+        }
 
-    .fila {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
+        .btn-generate {
+            background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+            transition: all 0.3s ease;
+        }
 
-    .fila > div {
-        flex: 1 1 160px;
-    }
-
-    button {
-        width: 100%;
-        padding: 12px;
-        background: #ffcc00;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        margin-top: 15px;
-        cursor: pointer;
-        font-weight: bold;
-    }
-
-    button:hover {
-        background: #ffdd33;
-    }
-
-    #preview {
-        margin-top: 20px;
-        text-align: center;
-    }
-
-    canvas {
-        margin-top: 15px;
-        background: #111;
-        border-radius: 16px;
-        box-shadow: 0 0 25px rgba(0,0,0,0.8);
-    }
-
-    hr {
-        border: none;
-        border-top: 1px solid rgba(255,255,255,0.2);
-        margin: 15px 0;
-    }
-</style>
+        .btn-generate:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.4);
+        }
+        
+        input[type="range"] {
+            accent-color: #38bdf8;
+        }
+    </style>
 </head>
+<body class="min-h-screen p-4 md:p-8">
 
-<body>
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Panel de Control -->
+        <div class="lg:col-span-4 space-y-6">
+            <div class="glass-panel p-6 rounded-3xl">
+                <h1 class="text-2xl font-bold mb-2 flex items-center gap-2">
+                    <span class="text-sky-400">LogoGen</span> AI
+                </h1>
+                <p class="text-slate-400 text-sm mb-6">Cierre de precisión y estilos premium.</p>
 
-<div class="container">
-    <h1>⚡ Motor Caribe 3D</h1>
-    <p class="descripcion">
-        Generador de logos y fondos con efectos pseudo‑3D, metal, cristal y neón. 
-        Ideal para QSL, perfiles, banners y proyectos creativos caribeños.
-    </p>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Texto Superior</label>
+                        <input type="text" id="topText" class="w-full p-3 rounded-xl" value="SANTA CRUZ DEL SUR">
+                    </div>
 
-    <label>Texto del logo</label>
-    <input id="texto" placeholder="Ej: CL7ADV">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Texto Inferior</label>
+                        <input type="text" id="bottomText" class="w-full p-3 rounded-xl" value="CAMAGÜEY - CUBA">
+                    </div>
 
-    <div class="fila">
-        <div>
-            <label>Color del texto</label>
-            <input type="color" id="colorTexto" value="#ffffff">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Sub-título Central</label>
+                        <input type="text" id="midText" class="w-full p-3 rounded-xl" value="RADIO CLUB">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Elementos Visuales</label>
+                        <textarea id="elements" rows="2" class="w-full p-3 rounded-xl text-sm">Una palmera, una radio antigua en la playa, atardecer.</textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Cierre del Círculo (Ajuste)</label>
+                        <input type="range" id="cropFactor" min="60" max="100" value="98" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+                            <span>Más cerrado</span>
+                            <span>Borde original</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Estilo Premium</label>
+                        <select id="style" class="w-full p-3 rounded-xl appearance-none cursor-pointer">
+                            <option value="luxury vintage metallic circular emblem, polished silver details, 3D relief">Metálico Lujoso</option>
+                            <option value="elegant glass badge with metal frame, circular, highly reflective">Cristal Elegante</option>
+                            <option value="modern clean circular flat vector, professional emblem">Plano Moderno</option>
+                            <option value="cyberpunk neon style circular logo, glowing lines, dark background">Neón Nocturno</option>
+                            <option value="embossed leather patch, circular, stitched edges, rustic brown">Cuero Grabado</option>
+                            <option value="fine porcelain and gold circular emblem, white ceramic, gold leaf">Porcelana y Oro</option>
+                        </select>
+                    </div>
+
+                    <button id="generateBtn" class="btn-generate w-full py-4 rounded-2xl font-bold text-lg mt-2 shadow-lg">
+                        Generar Logo
+                    </button>
+                </div>
+            </div>
         </div>
-        <div>
-            <label>Tamaño del texto</label>
-            <input type="number" id="tamanoTexto" value="70">
-        </div>
-        <div>
-            <label>Estilo de render</label>
-            <select id="estilo">
-                <option value="flat">Plano</option>
-                <option value="3dsoft">3D suave</option>
-                <option value="3dstrong">3D fuerte</option>
-                <option value="metal">Metal</option>
-                <option value="glass">Cristal</option>
-                <option value="neon">Neón</option>
-            </select>
-        </div>
-    </div>
 
-    <label>Forma del logo</label>
-    <select id="forma">
-        <!-- Básicas -->
-        <option value="none">Sin forma</option>
-        <option value="circle">Círculo</option>
-        <option value="square">Cuadrado</option>
-        <option value="rect">Rectángulo</option>
-        <option value="oval">Óvalo</option>
-        <option value="triangle">Triángulo</option>
-        <option value="hexagon">Hexágono</option>
+        <!-- Área de Previsualización -->
+        <div class="lg:col-span-8 flex flex-col gap-4">
+            <div id="previewContainer" class="logo-preview-container border-4 border-sky-500/20">
+                <div id="placeholderText" class="text-center p-8">
+                    <p class="text-slate-500 font-medium text-lg">Tu Logo Circular aparecerá aquí</p>
+                    <p class="text-slate-600 text-sm">Sin textos extraños, solo tus palabras.</p>
+                </div>
 
-        <!-- Modernas -->
-        <option value="rounded">Marco redondeado</option>
-        <option value="pill">Pastilla</option>
-        <option value="cardH">Tarjeta horizontal</option>
-        <option value="cardV">Tarjeta vertical</option>
+                <div id="loadingOverlay" class="hidden absolute inset-0 bg-slate-900/90 flex flex-col items-center justify-center z-10">
+                    <div class="loader mb-4"></div>
+                    <p class="text-white font-medium animate-pulse">Generando diseño circular perfecto...</p>
+                </div>
 
-        <!-- Creativas -->
-        <option value="star">Estrella</option>
-        <option value="seal">Sello redondo</option>
-        <option value="wavySeal">Sello ondulado</option>
-        <option value="flag">Bandera</option>
-        <option value="drop">Gota</option>
+                <img id="resultImage" class="hidden w-full h-full object-contain" alt="Logo final">
+            </div>
 
-        <!-- Radioaficionados -->
-        <option value="diamondDX">Diamante DX</option>
-        <option value="waveCircle">Onda circular</option>
-        <option value="waveH">Onda horizontal</option>
-
-        <!-- Premium -->
-        <option value="circleDouble">Círculo borde doble</option>
-        <option value="circleGradient">Círculo con degradado</option>
-        <option value="squareNeon">Cuadrado neón</option>
-        <option value="metalFrame">Marco metálico</option>
-        <option value="vintageSeal">Sello vintage</option>
-    </select>
-
-    <hr>
-
-    <h3>Opciones de fondo</h3>
-
-    <label>Tipo de fondo</label>
-    <select id="tipoFondo">
-        <option value="solid">Color sólido</option>
-        <option value="gradient">Degradado lineal</option>
-        <option value="radial">Degradado radial</option>
-        <option value="stripes">Franjas</option>
-        <option value="sunset">Atardecer caribeño</option>
-        <option value="sea">Mar Caribe</option>
-        <option value="darkStage">Escenario oscuro</option>
-    </select>
-
-    <div class="fila">
-        <div>
-            <label>Color fondo 1</label>
-            <input type="color" id="colorFondo1" value="#001f3f">
-        </div>
-        <div>
-            <label>Color fondo 2</label>
-            <input type="color" id="colorFondo2" value="#00c6ff">
+            <div id="actionButtons" class="hidden flex flex-col gap-4">
+                <div class="bg-blue-500/10 border border-blue-500/20 p-3 rounded-xl text-xs text-blue-200 text-center italic">
+                    Tip: Ajusta el slider si el logo tiene sombras fuera del borde circular.
+                </div>
+                <button onclick="downloadCircularLogo()" class="w-full bg-white text-slate-900 hover:bg-slate-200 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-xl">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    DESCARGAR PNG SIN FONDO
+                </button>
+            </div>
         </div>
     </div>
 
-    <button onclick="generarLogo()">Generar Logo / Fondo</button>
-    <button onclick="descargarLogo()">Descargar PNG</button>
+    <canvas id="cropCanvas" style="display:none;"></canvas>
 
-    <div id="preview">
-        <canvas id="canvas" width="900" height="550"></canvas>
-    </div>
-</div>
+    <script>
+        const apiKey = ""; 
+        const generateBtn = document.getElementById('generateBtn');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const resultImage = document.getElementById('resultImage');
+        const placeholderText = document.getElementById('placeholderText');
+        const actionButtons = document.getElementById('actionButtons');
+        const cropCanvas = document.getElementById('cropCanvas');
+        const cropFactorInput = document.getElementById('cropFactor');
 
-<script>
-function dibujarFondo(ctx, w, h, tipo, c1, c2) {
-    if (tipo === "solid") {
-        ctx.fillStyle = c1;
-        ctx.fillRect(0, 0, w, h);
-    } else if (tipo === "gradient") {
-        const grad = ctx.createLinearGradient(0, 0, w, h);
-        grad.addColorStop(0, c1);
-        grad.addColorStop(1, c2);
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, w, h);
-    } else if (tipo === "radial") {
-        const grad = ctx.createRadialGradient(w/2, h/2, 10, w/2, h/2, Math.max(w,h)/1.2);
-        grad.addColorStop(0, c1);
-        grad.addColorStop(1, c2);
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, w, h);
-    } else if (tipo === "stripes") {
-        ctx.fillStyle = c1;
-        ctx.fillRect(0, 0, w, h);
-        ctx.fillStyle = c2;
-        const stripeHeight = 30;
-        for (let y = 0; y < h; y += stripeHeight*2) {
-            ctx.fillRect(0, y, w, stripeHeight);
-        }
-    } else if (tipo === "sunset") {
-        const grad = ctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, "#ff9a00");
-        grad.addColorStop(0.5, "#ff0055");
-        grad.addColorStop(1, "#2b0040");
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, w, h);
-    } else if (tipo === "sea") {
-        const grad = ctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, "#00c6ff");
-        grad.addColorStop(0.5, "#0072ff");
-        grad.addColorStop(1, "#001f3f");
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, w, h);
+        let lastRawImage = null;
 
-        ctx.strokeStyle = "rgba(255,255,255,0.5)";
-        ctx.lineWidth = 2;
-        for (let y = h*0.4; y < h; y += 20) {
-            ctx.beginPath();
-            for (let x = 0; x < w; x += 20) {
-                const offset = Math.sin((x + y) / 40) * 5;
-                ctx.lineTo(x, y + offset);
+        async function generateLogo() {
+            const topText = document.getElementById('topText').value;
+            const bottomText = document.getElementById('bottomText').value;
+            const midText = document.getElementById('midText').value;
+            const elements = document.getElementById('elements').value;
+            const style = document.getElementById('style').value;
+
+            // Prompt revisado para excluir palabras técnicas del contenido visual
+            const prompt = `A professional circular emblem isolated on a solid white background. 
+            The ONLY visible text on the logo must be exactly: "${topText}" (on top), "${bottomText}" (on bottom), and "${midText}" (in the center). 
+            Do NOT include any other words or technical terms.
+            Content of the logo: ${elements}. 
+            Visual style: ${style}. 
+            Perfectly centered, ultra-clean edges, professional design.`;
+
+            loadingOverlay.classList.remove('hidden');
+            generateBtn.disabled = true;
+
+            try {
+                const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        instances: [{ prompt: prompt }],
+                        parameters: { sampleCount: 1 }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.predictions && data.predictions[0].bytesBase64Encoded) {
+                    lastRawImage = `data:image/png;base64,${data.predictions[0].bytesBase64Encoded}`;
+                    applyCircularCrop();
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Error de conexión. Intenta de nuevo.");
+            } finally {
+                loadingOverlay.classList.add('hidden');
+                generateBtn.disabled = false;
             }
-            ctx.stroke();
         }
-    } else if (tipo === "darkStage") {
-        ctx.fillStyle = "#050509";
-        ctx.fillRect(0, 0, w, h);
-        const grad = ctx.createRadialGradient(w/2, h*0.35, 10, w/2, h*0.35, w/1.5);
-        grad.addColorStop(0, "rgba(255,255,255,0.25)");
-        grad.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, w, h);
-    }
-}
 
-function dibujarFormaBase(ctx, forma, cx, cy, w, h) {
-    const rw = w * 0.55;
-    const rh = h * 0.55;
-    const x = cx - rw/2;
-    const y = cy - rh/2;
-    const r = Math.min(rw, rh)/2;
+        function applyCircularCrop() {
+            if (!lastRawImage) return;
 
-    ctx.beginPath();
+            const img = new Image();
+            img.onload = function() {
+                const size = Math.min(img.width, img.height);
+                const factor = parseInt(cropFactorInput.value) / 100;
+                
+                cropCanvas.width = size;
+                cropCanvas.height = size;
+                const ctx = cropCanvas.getContext('2d');
 
-    if (forma === "none") {
-        return null;
-    } else if (forma === "circle" || forma === "circleDouble" || forma === "circleGradient" || forma === "waveCircle") {
-        ctx.arc(cx, cy, r, 0, Math.PI*2);
-    } else if (forma === "square" || forma === "squareNeon") {
-        ctx.rect(x, y, rw, rh);
-    } else if (forma === "rect" || forma === "cardH" || forma === "cardV" || forma === "metalFrame") {
-        let ww = rw;
-        let hh = rh;
-        if (forma === "cardH") { ww = rw * 1.3; hh = rh * 0.55; }
-        if (forma === "cardV") { ww = rw * 0.7; hh = rh * 1.25; }
-        const xx = cx - ww/2;
-        const yy = cy - hh/2;
-        ctx.rect(xx, yy, ww, hh);
-    } else if (forma === "oval") {
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.scale(1.4, 1);
-        ctx.arc(0, 0, r, 0, Math.PI*2);
-        ctx.restore();
-    } else if (forma === "triangle") {
-        ctx.moveTo(cx, cy - r);
-        ctx.lineTo(cx - r, cy + r);
-        ctx.lineTo(cx + r, cy + r);
-        ctx.closePath();
-    } else if (forma === "hexagon") {
-        for (let i = 0; i < 6; i++) {
-            const ang = Math.PI/3 * i - Math.PI/6;
-            const xx = cx + r * Math.cos(ang);
-            const yy = cy + r * Math.sin(ang);
-            if (i === 0) ctx.moveTo(xx, yy);
-            else ctx.lineTo(xx, yy);
+                ctx.clearRect(0, 0, size, size);
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(size / 2, size / 2, (size / 2) * factor, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, size, size);
+                ctx.restore();
+
+                const finalUrl = cropCanvas.toDataURL("image/png");
+                resultImage.src = finalUrl;
+                resultImage.classList.remove('hidden');
+                placeholderText.classList.add('hidden');
+                actionButtons.classList.remove('hidden');
+            };
+            img.src = lastRawImage;
         }
-        ctx.closePath();
-    } else if (forma === "rounded" || forma === "pill") {
-        let radius = 30;
-        let ww = rw;
-        let hh = rh;
-        if (forma === "pill") {
-            ww = rw * 1.4;
-            hh = rh * 0.45;
-            radius = hh/2;
-        }
-        const xx = cx - ww/2;
-        const yy = cy - hh/2;
-        ctx.moveTo(xx + radius, yy);
-        ctx.lineTo(xx + ww - radius, yy);
-        ctx.quadraticCurveTo(xx + ww, yy, xx + ww, yy + radius);
-        ctx.lineTo(xx + ww, yy + hh - radius);
-        ctx.quadraticCurveTo(xx + ww, yy + hh, xx + ww - radius, yy + hh);
-        ctx.lineTo(xx + radius, yy + hh);
-        ctx.quadraticCurveTo(xx, yy + hh, xx, yy + hh - radius);
-        ctx.lineTo(xx, yy + radius);
-        ctx.quadraticCurveTo(xx, yy, xx + radius, yy);
-        ctx.closePath();
-    } else if (forma === "star") {
-        const spikes = 5;
-        const outerRadius = r;
-        const innerRadius = r * 0.45;
-        let rot = Math.PI / 2 * 3;
-        let x2 = cx;
-        let y2 = cy;
-        ctx.moveTo(cx, cy - outerRadius);
-        for (let i = 0; i < spikes; i++) {
-            x2 = cx + Math.cos(rot) * outerRadius;
-            y2 = cy + Math.sin(rot) * outerRadius;
-            ctx.lineTo(x2, y2);
-            rot += Math.PI / spikes;
 
-            x2 = cx + Math.cos(rot) * innerRadius;
-            y2 = cy + Math.sin(rot) * innerRadius;
-            ctx.lineTo(x2, y2);
-            rot += Math.PI / spikes;
-        }
-        ctx.closePath();
-    } else if (forma === "seal" || forma === "vintageSeal" || forma === "wavySeal") {
-        const points = 32;
-        for (let i = 0; i <= points; i++) {
-            const ang = (Math.PI*2/points) * i;
-            let rr = r;
-            if (forma === "wavySeal") {
-                rr = r + Math.sin(i*0.7)*8;
+        cropFactorInput.addEventListener('input', applyCircularCrop);
+
+        async function fetchWithRetry(url, options, retries = 5, backoff = 1000) {
+            try {
+                const res = await fetch(url, options);
+                if (!res.ok && retries > 0) throw new Error(res.statusText);
+                return res;
+            } catch (err) {
+                if (retries <= 0) throw err;
+                await new Promise(resolve => setTimeout(resolve, backoff));
+                return fetchWithRetry(url, options, retries - 1, backoff * 2);
             }
-            const xx = cx + rr * Math.cos(ang);
-            const yy = cy + rr * Math.sin(ang);
-            if (i === 0) ctx.moveTo(xx, yy);
-            else ctx.lineTo(xx, yy);
         }
-        ctx.closePath();
-    } else if (forma === "flag") {
-        const ww = rw * 1.3;
-        const hh = rh * 0.5;
-        const xx = cx - ww/2;
-        const yy = cy - hh/2;
-        ctx.moveTo(xx, yy);
-        ctx.lineTo(xx + ww*0.7, yy);
-        ctx.lineTo(xx + ww, yy + hh/2);
-        ctx.lineTo(xx + ww*0.7, yy + hh);
-        ctx.lineTo(xx, yy + hh);
-        ctx.closePath();
-    } else if (forma === "drop") {
-        ctx.moveTo(cx, cy - r);
-        ctx.bezierCurveTo(cx + r, cy - r, cx + r, cy + r*0.2, cx, cy + r);
-        ctx.bezierCurveTo(cx - r, cy + r*0.2, cx - r, cy - r, cx, cy - r);
-        ctx.closePath();
-    } else if (forma === "diamondDX") {
-        ctx.moveTo(cx, cy - r);
-        ctx.lineTo(cx + r*1.2, cy);
-        ctx.lineTo(cx, cy + r);
-        ctx.lineTo(cx - r*1.2, cy);
-        ctx.closePath();
-    } else if (forma === "waveH") {
-        const ww = rw * 1.4;
-        const hh = rh * 0.4;
-        const xx = cx - ww/2;
-        const yy = cy - hh/2;
-        ctx.moveTo(xx, yy + hh/2);
-        for (let x2 = xx; x2 <= xx + ww; x2 += 10) {
-            const off = Math.sin((x2 - xx)/20) * (hh/2);
-            ctx.lineTo(x2, yy + hh/2 + off);
+
+        function downloadCircularLogo() {
+            const link = document.createElement('a');
+            link.href = resultImage.src;
+            link.download = 'logo_circular_personalizado.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
-        ctx.lineTo(xx + ww, yy + hh);
-        ctx.lineTo(xx, yy + hh);
-        ctx.closePath();
-    } else if (forma === "waveCircle") {
-        ctx.arc(cx, cy, r, 0, Math.PI*2);
-    } else if (forma === "circleDouble" || forma === "circleGradient") {
-        ctx.arc(cx, cy, r, 0, Math.PI*2);
-    } else if (forma === "squareNeon") {
-        ctx.rect(x, y, rw, rh);
-    } else if (forma === "metalFrame") {
-        let ww = rw * 1.2;
-        let hh = rh * 0.7;
-        const xx = cx - ww/2;
-        const yy = cy - hh/2;
-        ctx.rect(xx, yy, ww, hh);
-    }
 
-    return { r, rw, rh, x, y };
-}
-
-function aplicarEstiloForma(ctx, forma, estilo, cx, cy, info) {
-    if (!info) return;
-    const { r, rw, rh, x, y } = info;
-
-    if (estilo === "flat") {
-        ctx.fillStyle = "rgba(255,255,255,0.9)";
-        ctx.strokeStyle = "rgba(0,0,0,0.25)";
-        ctx.lineWidth = 3;
-        ctx.fill();
-        ctx.stroke();
-    } else if (estilo === "3dsoft" || estilo === "3dstrong") {
-        const intensidad = estilo === "3dsoft" ? 8 : 16;
-
-        ctx.save();
-        ctx.translate(intensidad, intensidad);
-        ctx.fillStyle = "rgba(0,0,0,0.45)";
-        ctx.fill();
-        ctx.restore();
-
-        const grad = ctx.createLinearGradient(x, y, x + rw, y + rh);
-        grad.addColorStop(0, "rgba(255,255,255,0.98)");
-        grad.addColorStop(1, "rgba(180,180,180,0.95)");
-        ctx.fillStyle = grad;
-        ctx.strokeStyle = "rgba(0,0,0,0.4)";
-        ctx.lineWidth = 3;
-        ctx.fill();
-        ctx.stroke();
-    } else if (estilo === "metal") {
-        const grad = ctx.createLinearGradient(x, y, x + rw, y + rh);
-        grad.addColorStop(0, "#f5f5f5");
-        grad.addColorStop(0.25, "#b0b0b0");
-        grad.addColorStop(0.5, "#e0e0e0");
-        grad.addColorStop(0.75, "#8a8a8a");
-        grad.addColorStop(1, "#f8f8f8");
-        ctx.fillStyle = grad;
-        ctx.fill();
-
-        ctx.strokeStyle = "rgba(0,0,0,0.6)";
-        ctx.lineWidth = 3;
-        ctx.stroke();
-
-        ctx.save();
-        ctx.globalAlpha = 0.25;
-        ctx.fillStyle = "white";
-        ctx.beginPath();
-        ctx.ellipse(cx, cy - r*0.4, rw*0.35, rh*0.25, 0, 0, Math.PI*2);
-        ctx.fill();
-        ctx.restore();
-    } else if (estilo === "glass") {
-        const grad = ctx.createLinearGradient(x, y, x + rw, y + rh);
-        grad.addColorStop(0, "rgba(255,255,255,0.85)");
-        grad.addColorStop(1, "rgba(180,220,255,0.35)");
-        ctx.fillStyle = grad;
-        ctx.fill();
-
-        ctx.strokeStyle = "rgba(255,255,255,0.8)";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.save();
-        ctx.globalAlpha = 0.35;
-        ctx.fillStyle = "white";
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.quadraticCurveTo(cx, y - rh*0.2, x + rw*0.8, y + rh*0.2);
-        ctx.lineTo(x + rw*0.4, y + rh*0.4);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-    } else if (estilo === "neon") {
-        ctx.save();
-        ctx.strokeStyle = "#00ffff";
-        ctx.lineWidth = 5;
-        ctx.shadowColor = "#00ffff";
-        ctx.shadowBlur = 25;
-        ctx.stroke();
-        ctx.restore();
-
-        ctx.fillStyle = "rgba(0,0,0,0.6)";
-        ctx.fill();
-    }
-}
-
-function dibujarForma(ctx, forma, estilo, cx, cy, w, h) {
-    ctx.save();
-    const info = dibujarFormaBase(ctx, forma, cx, cy, w, h);
-    aplicarEstiloForma(ctx, forma, estilo, cx, cy, info);
-    ctx.restore();
-}
-
-function dibujarTexto3D(ctx, texto, cx, cy, colorTexto, tamano, estilo) {
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.font = `${tamano}px Arial Black, Arial, sans-serif`;
-
-    const maxWidth = ctx.canvas.width * 0.7;
-    let textoFinal = texto;
-    if (ctx.measureText(texto).width > maxWidth) {
-        while (textoFinal.length > 0 && ctx.measureText(textoFinal + "…").width > maxWidth) {
-            textoFinal = textoFinal.slice(0, -1);
-        }
-        textoFinal += "…";
-    }
-
-    if (estilo === "3dsoft" || estilo === "3dstrong") {
-        const capas = estilo === "3dsoft" ? 6 : 12;
-        const offset = estilo === "3dsoft" ? 1 : 1.5;
-        ctx.fillStyle = "rgba(0,0,0,0.6)";
-        for (let i = capas; i > 0; i--) {
-            ctx.fillText(textoFinal, cx + i*offset, cy + i*offset);
-        }
-    }
-
-    if (estilo === "neon") {
-        ctx.save();
-        ctx.strokeStyle = colorTexto;
-        ctx.lineWidth = 3;
-        ctx.shadowColor = colorTexto;
-        ctx.shadowBlur = 25;
-        ctx.strokeText(textoFinal, cx, cy);
-        ctx.restore();
-
-        ctx.fillStyle = "rgba(255,255,255,0.85)";
-        ctx.fillText(textoFinal, cx, cy);
-    } else if (estilo === "metal") {
-        const grad = ctx.createLinearGradient(cx - 100, cy - 50, cx + 100, cy + 50);
-        grad.addColorStop(0, "#f5f5f5");
-        grad.addColorStop(0.3, "#b0b0b0");
-        grad.addColorStop(0.6, "#ffffff");
-        grad.addColorStop(1, "#8a8a8a");
-        ctx.fillStyle = grad;
-        ctx.strokeStyle = "rgba(0,0,0,0.7)";
-        ctx.lineWidth = 2;
-        ctx.fillText(textoFinal, cx, cy);
-        ctx.strokeText(textoFinal, cx, cy);
-    } else if (estilo === "glass") {
-        ctx.fillStyle = "rgba(255,255,255,0.9)";
-        ctx.strokeStyle = "rgba(0,0,0,0.4)";
-        ctx.lineWidth = 2;
-        ctx.fillText(textoFinal, cx, cy);
-        ctx.strokeText(textoFinal, cx, cy);
-    } else {
-        ctx.fillStyle = colorTexto;
-        ctx.strokeStyle = "rgba(0,0,0,0.5)";
-        ctx.lineWidth = 2;
-        ctx.fillText(textoFinal, cx, cy);
-        ctx.strokeText(textoFinal, cx, cy);
-    }
-}
-
-function generarLogo() {
-    const texto = document.getElementById("texto").value || "";
-    const colorTexto = document.getElementById("colorTexto").value;
-    const tamanoTexto = parseInt(document.getElementById("tamanoTexto").value) || 70;
-    const forma = document.getElementById("forma").value;
-    const estilo = document.getElementById("estilo").value;
-
-    const tipoFondo = document.getElementById("tipoFondo").value;
-    const colorFondo1 = document.getElementById("colorFondo1").value;
-    const colorFondo2 = document.getElementById("colorFondo2").value;
-
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    const w = canvas.width;
-    const h = canvas.height;
-
-    ctx.clearRect(0, 0, w, h);
-
-    dibujarFondo(ctx, w, h, tipoFondo, colorFondo1, colorFondo2);
-
-    const cx = w / 2;
-    const cy = h / 2;
-
-    dibujarForma(ctx, forma, estilo, cx, cy, w, h);
-
-    dibujarTexto3D(ctx, texto, cx, cy, colorTexto, tamanoTexto, estilo);
-}
-
-function descargarLogo() {
-    const canvas = document.getElementById("canvas");
-    const enlace = document.createElement("a");
-    enlace.download = "logo-caribe-3d.png";
-    enlace.href = canvas.toDataURL("image/png");
-    enlace.click();
-}
-</script>
-
+        generateBtn.addEventListener('click', generateLogo);
+    </script>
 </body>
 </html>
